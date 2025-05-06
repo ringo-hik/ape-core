@@ -1,0 +1,632 @@
+{
+    "name": "pocket",
+    "description": {
+      "en": "Pocket (Internal Cloud Storage Service) agent for object storage operations including bucket management, file uploads/downloads, access control, and advanced search capabilities",
+      "ko": "Pocket(내부 클라우드 스토리지 서비스) 에이전트로 버킷 관리, 파일 업로드/다운로드, 접근 제어 및 고급 검색 기능 등 객체 스토리지 작업을 수행합니다"
+    },
+    "parameters": {
+      "command": {
+        "type": "string",
+        "description": {
+          "en": "Pocket command to execute",
+          "ko": "실행할 Pocket 명령어"
+        },
+        "required": true
+      },
+      "bucket_name": {
+        "type": "string",
+        "description": {
+          "en": "Pocket bucket name",
+          "ko": "Pocket 버킷 이름"
+        },
+        "required": false
+      },
+      "object_key": {
+        "type": "string",
+        "description": {
+          "en": "Pocket object key (path to the file)",
+          "ko": "Pocket 객체 키(파일 경로)"
+        },
+        "required": false
+      },
+      "prefix": {
+        "type": "string",
+        "description": {
+          "en": "Prefix for filtering Pocket objects",
+          "ko": "Pocket 객체 필터링을 위한 접두사"
+        },
+        "required": false
+      },
+      "user_query": {
+        "type": "string",
+        "description": {
+          "en": "Natural language query about Pocket storage",
+          "ko": "Pocket 스토리지에 관한 자연어 질의"
+        },
+        "required": false
+      }
+    },
+    "authentication": {
+      "type": "API credentials",
+      "methods": [
+        {
+          "name": "Access Key",
+          "description": {
+            "en": "Authentication using Access Key and Secret Key",
+            "ko": "액세스 키와 시크릿 키를 사용한 인증"
+          },
+          "parameters": ["access_key", "secret_key"]
+        },
+        {
+          "name": "IAM Role",
+          "description": {
+            "en": "Authentication using IAM role for internal services",
+            "ko": "내부 서비스를 위한 IAM 역할을 사용한 인증"
+          },
+          "parameters": []
+        },
+        {
+          "name": "Profile",
+          "description": {
+            "en": "Authentication using named profile configured in credentials file",
+            "ko": "자격 증명 파일에 구성된 명명된 프로필을 사용한 인증"
+          },
+          "parameters": ["profile_name"]
+        }
+      ]
+    },
+    "reasoning_strategy": {
+      "approach": "단계적 추론 방식",
+      "steps": [
+        "1. 사용자 질의 의도 파악 (버킷 생성, 객체 검색, 다운로드 등)",
+        "2. 필요한 파라미터 식별 (버킷 이름, 객체 키, 접두사 등)",
+        "3. 적절한 Pocket API 작업 결정",
+        "4. 필요한 권한 확인",
+        "5. 작업 수행 및 결과 반환"
+      ],
+      "validation_checks": [
+        "버킷 이름 유효성 검증 (소문자, 숫자, 하이픈만 포함)",
+        "객체 키 경로 유효성 검증",
+        "사용자 권한 검증",
+        "필수 파라미터 존재 여부 확인",
+        "파일 크기/타입 제한 확인"
+      ]
+    },
+    "service_capabilities": {
+      "bucket_operations": [
+        {
+          "operation": "create_bucket",
+          "description": {
+            "en": "Creates a new Pocket bucket",
+            "ko": "새로운 Pocket 버킷 생성"
+          },
+          "required_params": ["bucket_name"],
+          "optional_params": ["region", "acl", "object_ownership"],
+          "example": "create_bucket(bucket_name='my-unique-bucket', region='ap-northeast-2')"
+        },
+        {
+          "operation": "delete_bucket",
+          "description": {
+            "en": "Deletes a Pocket bucket (must be empty)",
+            "ko": "Pocket 버킷 삭제 (비어 있어야 함)"
+          },
+          "required_params": ["bucket_name"],
+          "optional_params": [],
+          "example": "delete_bucket(bucket_name='my-unique-bucket')"
+        },
+        {
+          "operation": "list_buckets",
+          "description": {
+            "en": "Lists all Pocket buckets owned by the authenticated user",
+            "ko": "인증된 사용자가 소유한 모든 Pocket 버킷 나열"
+          },
+          "required_params": [],
+          "optional_params": [],
+          "example": "list_buckets()"
+        },
+        {
+          "operation": "get_bucket_location",
+          "description": {
+            "en": "Returns the Region the bucket resides in",
+            "ko": "버킷이 위치한 리전 반환"
+          },
+          "required_params": ["bucket_name"],
+          "optional_params": [],
+          "example": "get_bucket_location(bucket_name='my-unique-bucket')"
+        },
+        {
+          "operation": "get_bucket_policy",
+          "description": {
+            "en": "Returns the policy of a specified bucket",
+            "ko": "지정된 버킷의 정책 반환"
+          },
+          "required_params": ["bucket_name"],
+          "optional_params": [],
+          "example": "get_bucket_policy(bucket_name='my-unique-bucket')"
+        },
+        {
+          "operation": "put_bucket_policy",
+          "description": {
+            "en": "Applies an access policy to a bucket",
+            "ko": "버킷에 액세스 정책 적용"
+          },
+          "required_params": ["bucket_name", "policy"],
+          "optional_params": [],
+          "example": "put_bucket_policy(bucket_name='my-unique-bucket', policy='{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::123456789012:user/username\"},\"Action\":\"s3:GetObject\",\"Resource\":\"arn:aws:s3:::my-unique-bucket/*\"}]}')"
+        }
+      ],
+      "object_operations": [
+        {
+          "operation": "list_objects",
+          "description": {
+            "en": "Lists objects in a Pocket bucket",
+            "ko": "Pocket 버킷의 객체 나열"
+          },
+          "required_params": ["bucket_name"],
+          "optional_params": ["prefix", "delimiter", "max_keys", "start_after"],
+          "example": "list_objects(bucket_name='my-unique-bucket', prefix='documents/', delimiter='/')"
+        },
+        {
+          "operation": "list_objects_v2",
+          "description": {
+            "en": "Lists objects in a Pocket bucket (newer version with improved performance)",
+            "ko": "Pocket 버킷의 객체 나열 (성능이 향상된 최신 버전)"
+          },
+          "required_params": ["bucket_name"],
+          "optional_params": ["prefix", "delimiter", "max_keys", "start_after", "continuation_token"],
+          "example": "list_objects_v2(bucket_name='my-unique-bucket', prefix='images/', max_keys=100)"
+        },
+        {
+          "operation": "put_object",
+          "description": {
+            "en": "Adds an object to a bucket",
+            "ko": "버킷에 객체 추가"
+          },
+          "required_params": ["bucket_name", "object_key", "body"],
+          "optional_params": ["acl", "content_type", "metadata", "storage_class"],
+          "example": "put_object(bucket_name='my-unique-bucket', object_key='documents/file.txt', body=b'Hello, World!', content_type='text/plain')"
+        },
+        {
+          "operation": "get_object",
+          "description": {
+            "en": "Retrieves an object from a bucket",
+            "ko": "버킷에서 객체 검색"
+          },
+          "required_params": ["bucket_name", "object_key"],
+          "optional_params": ["version_id", "range"],
+          "example": "get_object(bucket_name='my-unique-bucket', object_key='documents/file.txt')"
+        },
+        {
+          "operation": "delete_object",
+          "description": {
+            "en": "Removes an object from a bucket",
+            "ko": "버킷에서 객체 제거"
+          },
+          "required_params": ["bucket_name", "object_key"],
+          "optional_params": ["version_id"],
+          "example": "delete_object(bucket_name='my-unique-bucket', object_key='documents/file.txt')"
+        },
+        {
+          "operation": "delete_objects",
+          "description": {
+            "en": "Removes multiple objects from a bucket in a single request",
+            "ko": "단일 요청으로 버킷에서 여러 객체 제거"
+          },
+          "required_params": ["bucket_name", "delete"],
+          "optional_params": [],
+          "example": "delete_objects(bucket_name='my-unique-bucket', delete={'Objects': [{'Key': 'documents/file1.txt'}, {'Key': 'documents/file2.txt'}]})"
+        },
+        {
+          "operation": "head_object",
+          "description": {
+            "en": "Retrieves metadata of an object without returning the object itself",
+            "ko": "객체 자체를 반환하지 않고 객체의 메타데이터 검색"
+          },
+          "required_params": ["bucket_name", "object_key"],
+          "optional_params": ["version_id"],
+          "example": "head_object(bucket_name='my-unique-bucket', object_key='documents/file.txt')"
+        },
+        {
+          "operation": "copy_object",
+          "description": {
+            "en": "Creates a copy of an object that is already stored in Pocket",
+            "ko": "이미 Pocket에 저장된 객체의 복사본 생성"
+          },
+          "required_params": ["bucket_name", "object_key", "copy_source"],
+          "optional_params": ["acl", "metadata", "storage_class"],
+          "example": "copy_object(bucket_name='destination-bucket', object_key='documents/copy-file.txt', copy_source={'Bucket': 'source-bucket', 'Key': 'documents/file.txt'})"
+        }
+      ],
+      "advanced_features": [
+        {
+          "feature": "presigned_urls",
+          "description": {
+            "en": "Generate pre-signed URLs for Pocket operations that can be used by anyone who receives them",
+            "ko": "수신자가 사용할 수 있는 Pocket 작업용 미리 서명된 URL 생성"
+          },
+          "operations": ["generate_presigned_url", "generate_presigned_post"],
+          "example": "generate_presigned_url('get_object', Params={'Bucket': 'my-unique-bucket', 'Key': 'documents/file.txt'}, ExpiresIn=3600)"
+        },
+        {
+          "feature": "multipart_upload",
+          "description": {
+            "en": "Upload large objects in parts for improved reliability and efficiency",
+            "ko": "신뢰성과 효율성을 향상시키기 위해 대용량 객체를 부분적으로 업로드"
+          },
+          "operations": ["create_multipart_upload", "upload_part", "complete_multipart_upload", "abort_multipart_upload"],
+          "example": "create_multipart_upload(Bucket='my-unique-bucket', Key='videos/large-video.mp4')"
+        },
+        {
+          "feature": "versioning",
+          "description": {
+            "en": "Keep multiple variants of an object in the same bucket to preserve, retrieve, and restore every version",
+            "ko": "모든 버전을 보존, 검색 및 복원하기 위해 동일한 버킷에 객체의 여러 변형을 유지"
+          },
+          "operations": ["get_bucket_versioning", "put_bucket_versioning", "get_object (with version_id)"],
+          "example": "put_bucket_versioning(Bucket='my-unique-bucket', VersioningConfiguration={'Status': 'Enabled'})"
+        },
+        {
+          "feature": "lifecycle_management",
+          "description": {
+            "en": "Define rules to automatically transition objects to different storage classes or delete them",
+            "ko": "객체를 자동으로 다른 스토리지 클래스로 전환하거나 삭제하는 규칙 정의"
+          },
+          "operations": ["get_bucket_lifecycle_configuration", "put_bucket_lifecycle_configuration"],
+          "example": "put_bucket_lifecycle_configuration(Bucket='my-unique-bucket', LifecycleConfiguration={'Rules': [{'ID': 'Archive old files', 'Prefix': 'logs/', 'Status': 'Enabled', 'Transitions': [{'Days': 30, 'StorageClass': 'STANDARD_IA'}], 'Expiration': {'Days': 365}}]})"
+        },
+        {
+          "feature": "encryption",
+          "description": {
+            "en": "Configure server-side encryption for objects in a Pocket bucket",
+            "ko": "Pocket 버킷의 객체에 대한 서버 측 암호화 구성"
+          },
+          "operations": ["get_bucket_encryption", "put_bucket_encryption"],
+          "example": "put_bucket_encryption(Bucket='my-unique-bucket', ServerSideEncryptionConfiguration={'Rules': [{'ApplyServerSideEncryptionByDefault': {'SSEAlgorithm': 'AES256'}}]})"
+        },
+        {
+          "feature": "cors",
+          "description": {
+            "en": "Define rules for Cross-Origin Resource Sharing (CORS)",
+            "ko": "교차 출처 리소스 공유(CORS)에 대한 규칙 정의"
+          },
+          "operations": ["get_bucket_cors", "put_bucket_cors"],
+          "example": "put_bucket_cors(Bucket='my-unique-bucket', CORSConfiguration={'CORSRules': [{'AllowedHeaders': ['*'], 'AllowedMethods': ['GET'], 'AllowedOrigins': ['https://example.com'], 'MaxAgeSeconds': 3000}]})"
+        },
+        {
+          "feature": "object_tagging",
+          "description": {
+            "en": "Add key-value pairs as tags to organize and categorize objects",
+            "ko": "객체를 구성하고 분류하기 위해 태그로 키-값 쌍 추가"
+          },
+          "operations": ["get_object_tagging", "put_object_tagging"],
+          "example": "put_object_tagging(Bucket='my-unique-bucket', Key='documents/file.txt', Tagging={'TagSet': [{'Key': 'department', 'Value': 'finance'}, {'Key': 'confidential', 'Value': 'true'}]})"
+        }
+      ],
+      "search_capabilities": [
+        {
+          "capability": "prefix_based_listing",
+          "description": {
+            "en": "List objects with a common prefix (folder-like structure)",
+            "ko": "공통 접두사가 있는 객체 나열(폴더와 유사한 구조)"
+          },
+          "example": "list_objects_v2(Bucket='my-unique-bucket', Prefix='reports/2023/')"
+        },
+        {
+          "capability": "delimiter_based_listing",
+          "description": {
+            "en": "Group objects with common prefixes up to the delimiter (simulating directory browsing)",
+            "ko": "구분 기호까지 공통 접두사로 객체 그룹화(디렉터리 탐색 시뮬레이션)"
+          },
+          "example": "list_objects_v2(Bucket='my-unique-bucket', Prefix='reports/', Delimiter='/')"
+        },
+        {
+          "capability": "select",
+          "description": {
+            "en": "Query the contents of objects using SQL expressions without retrieving the entire object",
+            "ko": "전체 객체를 검색하지 않고 SQL 표현식을 사용하여 객체 내용 쿼리"
+          },
+          "supported_formats": ["CSV", "JSON", "Parquet"],
+          "example": "select_object_content(Bucket='my-unique-bucket', Key='data/large-dataset.csv', Expression='SELECT * FROM S3Object s WHERE s.\"Name\" = \\'John\\'', ExpressionType='SQL', InputSerialization={'CSV': {'FileHeaderInfo': 'USE', 'RecordDelimiter': '\\n', 'FieldDelimiter': ','}}, OutputSerialization={'CSV': {}})"
+        },
+        {
+          "capability": "inventory",
+          "description": {
+            "en": "Generate inventories of objects in a bucket on a daily or weekly basis",
+            "ko": "일별 또는 주별로 버킷의 객체 인벤토리 생성"
+          },
+          "example": "put_bucket_inventory_configuration(Bucket='my-unique-bucket', Id='weekly-inventory', InventoryConfiguration={'Destination': {'S3BucketDestination': {'Bucket': 'arn:aws:s3:::inventory-bucket', 'Format': 'CSV'}}, 'IsEnabled': True, 'Id': 'weekly-inventory', 'IncludedObjectVersions': 'Current', 'Schedule': {'Frequency': 'Weekly'}, 'OptionalFields': ['Size', 'LastModifiedDate']})"
+        },
+        {
+          "capability": "event_notifications",
+          "description": {
+            "en": "Configure notifications for specific events on objects",
+            "ko": "객체에 대한 특정 이벤트에 대한 알림 구성"
+          },
+          "supported_destinations": ["SNS", "SQS", "Lambda"],
+          "example": "put_bucket_notification_configuration(Bucket='my-unique-bucket', NotificationConfiguration={'LambdaFunctionConfigurations': [{'LambdaFunctionArn': 'arn:aws:lambda:region:account-id:function:function-name', 'Events': ['s3:ObjectCreated:*'], 'Filter': {'Key': {'FilterRules': [{'Name': 'prefix', 'Value': 'images/'}]}}}]})"
+        },
+        {
+          "capability": "tag_based_filtering",
+          "description": {
+            "en": "Filter objects based on tags using bucket policies or IAM policies",
+            "ko": "버킷 정책 또는 IAM 정책을 사용하여 태그 기반으로 객체 필터링"
+          },
+          "example": "Policy with condition: {'StringEquals': {'s3:ExistingObjectTag/confidential': 'true'}}"
+        }
+      ]
+    },
+    "storage_classes": [
+      {
+        "name": "STANDARD",
+        "description": {
+          "en": "General-purpose storage for frequently accessed data",
+          "ko": "자주 액세스하는 데이터를 위한 범용 스토리지"
+        },
+        "durability": "99.999999999%",
+        "availability": "99.99%",
+        "retrieval_fee": "No",
+        "minimum_storage_duration": "None"
+      },
+      {
+        "name": "STANDARD_IA",
+        "description": {
+          "en": "Infrequent Access storage for less frequently accessed data",
+          "ko": "덜 자주 액세스하는 데이터를 위한 비정기적 액세스 스토리지"
+        },
+        "durability": "99.999999999%",
+        "availability": "99.9%",
+        "retrieval_fee": "Yes",
+        "minimum_storage_duration": "30 days"
+      },
+      {
+        "name": "ARCHIVE",
+        "description": {
+          "en": "Archive storage for long-term data archiving with retrieval times within several hours",
+          "ko": "몇 시간 이내에 검색 시간이 소요되는 장기 데이터 아카이빙을 위한 아카이브 스토리지"
+        },
+        "durability": "99.999999999%",
+        "availability": "99.99% (after restoration)",
+        "retrieval_fee": "Yes",
+        "minimum_storage_duration": "90 days"
+      }
+    ],
+    "common_errors": [
+      {
+        "error_code": "NoSuchBucket",
+        "description": {
+          "en": "The specified bucket does not exist",
+          "ko": "지정된 버킷이 존재하지 않습니다"
+        },
+        "resolution": {
+          "en": "Verify the bucket name and region, or create the bucket if it doesn't exist",
+          "ko": "버킷 이름과 지역을 확인하거나 버킷이 존재하지 않는 경우 생성하세요"
+        }
+      },
+      {
+        "error_code": "AccessDenied",
+        "description": {
+          "en": "Access to the resource is denied due to insufficient permissions",
+          "ko": "권한 부족으로 인해 리소스에 대한 액세스가 거부됩니다"
+        },
+        "resolution": {
+          "en": "Check IAM policies, bucket policies, ACLs, and ensure the correct credentials are being used",
+          "ko": "IAM 정책, 버킷 정책, ACL을 확인하고 올바른 자격 증명이 사용되고 있는지 확인하세요"
+        }
+      },
+      {
+        "error_code": "NoSuchKey",
+        "description": {
+          "en": "The specified key does not exist in the bucket",
+          "ko": "지정된 키가 버킷에 존재하지 않습니다"
+        },
+        "resolution": {
+          "en": "Verify the object key path, check for typos, or ensure the object has been uploaded",
+          "ko": "객체 키 경로를 확인하고, 오타를 확인하거나 객체가 업로드되었는지 확인하세요"
+        }
+      },
+      {
+        "error_code": "BucketAlreadyExists",
+        "description": {
+          "en": "The requested bucket name is already in use (bucket names are unique across all of Pocket)",
+          "ko": "요청된 버킷 이름이 이미 사용 중입니다 (버킷 이름은 모든 Pocket에서 고유해야 함)"
+        },
+        "resolution": {
+          "en": "Choose a different bucket name that is globally unique",
+          "ko": "전역적으로 고유한 다른 버킷 이름을 선택하세요"
+        }
+      },
+      {
+        "error_code": "InvalidBucketName",
+        "description": {
+          "en": "The bucket name is invalid (must be 3-63 characters, lowercase, no uppercase, and can contain only letters, numbers, periods, and hyphens)",
+          "ko": "버킷 이름이 유효하지 않습니다 (3-63자, 소문자만, 대문자 없이, 문자, 숫자, 마침표, 하이픈만 포함 가능)"
+        },
+        "resolution": {
+          "en": "Choose a bucket name that follows naming rules",
+          "ko": "명명 규칙을 따르는 버킷 이름을 선택하세요"
+        }
+      },
+      {
+        "error_code": "EntityTooLarge",
+        "description": {
+          "en": "The object size exceeds the maximum allowed size for a single PUT operation (5GB)",
+          "ko": "객체 크기가 단일 PUT 작업에 허용된 최대 크기(5GB)를 초과합니다"
+        },
+        "resolution": {
+          "en": "Use multipart upload for objects larger than 5GB",
+          "ko": "5GB보다 큰 객체에는 멀티파트 업로드를 사용하세요"
+        }
+      },
+      {
+        "error_code": "BucketNotEmpty",
+        "description": {
+          "en": "The bucket is not empty and cannot be deleted",
+          "ko": "버킷이 비어 있지 않아 삭제할 수 없습니다"
+        },
+        "resolution": {
+          "en": "Delete all objects in the bucket first, or use the DeleteObjects operation to empty the bucket",
+          "ko": "먼저 버킷의 모든 객체를 삭제하거나 DeleteObjects 작업을 사용하여 버킷을 비우세요"
+        }
+      }
+    ],
+    "best_practices": [
+      {
+        "category": "security",
+        "title": {
+          "en": "Implement least privilege access",
+          "ko": "최소 권한 액세스 구현"
+        },
+        "description": {
+          "en": "Grant only the permissions required for a user or role to perform their tasks",
+          "ko": "사용자 또는 역할이 작업을 수행하는 데 필요한 권한만 부여"
+        }
+      },
+      {
+        "category": "security",
+        "title": {
+          "en": "Enable bucket versioning",
+          "ko": "버킷 버전 관리 활성화"
+        },
+        "description": {
+          "en": "Protect against accidental deletions and modifications by enabling versioning",
+          "ko": "버전 관리를 활성화하여 실수로 인한 삭제 및 수정으로부터 보호"
+        }
+      },
+      {
+        "category": "security",
+        "title": {
+          "en": "Enable server-side encryption",
+          "ko": "서버 측 암호화 활성화"
+        },
+        "description": {
+          "en": "Encrypt data at rest using AES-256",
+          "ko": "AES-256을 사용하여 저장 데이터 암호화"
+        }
+      },
+      {
+        "category": "performance",
+        "title": {
+          "en": "Use appropriate storage classes",
+          "ko": "적절한 스토리지 클래스 사용"
+        },
+        "description": {
+          "en": "Choose storage classes based on access patterns and cost requirements",
+          "ko": "액세스 패턴 및 비용 요구 사항에 따라 스토리지 클래스 선택"
+        }
+      },
+      {
+        "category": "performance",
+        "title": {
+          "en": "Use multipart uploads for large objects",
+          "ko": "대용량 객체에 멀티파트 업로드 사용"
+        },
+        "description": {
+          "en": "Improve upload performance and reliability for objects larger than 100MB",
+          "ko": "100MB보다 큰 객체의 업로드 성능 및 신뢰성 향상"
+        }
+      },
+      {
+        "category": "cost",
+        "title": {
+          "en": "Implement lifecycle policies",
+          "ko": "수명 주기 정책 구현"
+        },
+        "description": {
+          "en": "Automatically transition objects to cheaper storage classes or delete them when no longer needed",
+          "ko": "더 이상 필요하지 않은 경우 객체를 더 저렴한 스토리지 클래스로 자동 전환하거나 삭제"
+        }
+      },
+      {
+        "category": "organization",
+        "title": {
+          "en": "Use a consistent object naming scheme",
+          "ko": "일관된 객체 명명 체계 사용"
+        },
+        "description": {
+          "en": "Design object keys that facilitate efficient listing, searching, and organization",
+          "ko": "효율적인 리스팅, 검색 및 구성을 용이하게 하는 객체 키 설계"
+        }
+      }
+    ],
+    "user_examples": [
+      {
+        "user_query": {
+          "en": "Show me all buckets in my account",
+          "ko": "내 계정의 모든 버킷을 보여주세요"
+        },
+        "agent_response": {
+          "en": "Here are all the Pocket buckets in your account:\n\n[List of buckets with creation dates and regions]",
+          "ko": "계정에 있는 모든 Pocket 버킷은 다음과 같습니다:\n\n[생성 날짜 및 지역이 포함된 버킷 목록]"
+        },
+        "pocket_operation": "list_buckets()",
+        "notes": {
+          "en": "Basic operation to list all buckets. Requires ListAllMyBuckets permission.",
+          "ko": "모든 버킷을 나열하는 기본 작업. ListAllMyBuckets 권한이 필요합니다."
+        }
+      },
+      {
+        "user_query": {
+          "en": "Upload my financial-report-2023.xlsx file to the reports folder in the finance-docs bucket",
+          "ko": "financial-report-2023.xlsx 파일을 finance-docs 버킷의 reports 폴더에 업로드해주세요"
+        },
+        "agent_response": {
+          "en": "I'll upload your financial-report-2023.xlsx file to the reports folder in the finance-docs bucket.\n\nUpload successful! The file is now available at pocket://finance-docs/reports/financial-report-2023.xlsx",
+          "ko": "financial-report-2023.xlsx 파일을 finance-docs 버킷의 reports 폴더에 업로드하겠습니다.\n\n업로드 성공! 파일은 이제 pocket://finance-docs/reports/financial-report-2023.xlsx에서 사용할 수 있습니다."
+        },
+        "pocket_operation": "upload_file('financial-report-2023.xlsx', 'finance-docs', 'reports/financial-report-2023.xlsx')",
+        "notes": {
+          "en": "Uses the high-level upload_file method which handles file reading and multipart uploads if necessary. Requires PutObject permission on the bucket/prefix.",
+          "ko": "파일 읽기 및 필요한 경우 멀티파트 업로드를 처리하는 상위 수준 upload_file 메서드를 사용합니다. 버킷/접두사에 대한 PutObject 권한이 필요합니다."
+        }
+      },
+      {
+        "user_query": {
+          "en": "Find all PDF files in the marketing-assets bucket that were modified in the last 30 days",
+          "ko": "marketing-assets 버킷에서 최근 30일 동안 수정된 모든 PDF 파일을 찾아주세요"
+        },
+        "agent_response": {
+          "en": "Searching for PDF files in the marketing-assets bucket modified in the last 30 days...\n\nI found 12 PDF files:\n1. brochures/product-catalog-v2.pdf (Modified: 2023-04-10)\n2. presentations/investor-deck.pdf (Modified: 2023-04-15)\n...",
+          "ko": "marketing-assets 버킷에서 최근 30일 동안 수정된 PDF 파일을 검색 중...\n\n12개의 PDF 파일을 찾았습니다:\n1. brochures/product-catalog-v2.pdf (수정일: 2023-04-10)\n2. presentations/investor-deck.pdf (수정일: 2023-04-15)\n..."
+        },
+        "pocket_operation": "list_objects_v2(Bucket='marketing-assets', Prefix='')",
+        "processing": "Filter results where Key ends with '.pdf' and LastModified > (current_date - 30 days)",
+        "notes": {
+          "en": "Requires client-side filtering of results since Pocket doesn't support filtering by file extension or modified date in the API directly.",
+          "ko": "Pocket이 API에서 직접 파일 확장자나 수정된 날짜로 필터링을 지원하지 않기 때문에 결과의 클라이언트 측 필터링이 필요합니다."
+        }
+      },
+      {
+        "user_query": {
+          "en": "Generate a pre-signed URL for the annual-report.pdf in the shareholders bucket that expires in 24 hours",
+          "ko": "shareholders 버킷의 annual-report.pdf에 대해 24시간 후에 만료되는 미리 서명된 URL을 생성해주세요"
+        },
+        "agent_response": {
+          "en": "I've generated a pre-signed URL for annual-report.pdf in the shareholders bucket. This URL will expire in 24 hours:\n\nhttps://pocket.example.com/shareholders/annual-report.pdf?X-Auth-Token=...",
+          "ko": "shareholders 버킷의 annual-report.pdf에 대한 미리 서명된 URL을 생성했습니다. 이 URL은 24시간 후에 만료됩니다:\n\nhttps://pocket.example.com/shareholders/annual-report.pdf?X-Auth-Token=..."
+        },
+        "pocket_operation": "generate_presigned_url('get_object', Params={'Bucket': 'shareholders', 'Key': 'annual-report.pdf'}, ExpiresIn=86400)",
+        "notes": {
+          "en": "Creates a temporary URL that allows access to an object without requiring API credentials. Useful for sharing files with external parties.",
+          "ko": "API 자격 증명 없이도 객체에 액세스할 수 있는 임시 URL을 생성합니다. 외부 당사자와 파일을 공유하는 데 유용합니다."
+        }
+      },
+      {
+        "user_query": {
+          "en": "Create a new bucket called my-backup-data-2023 with default encryption",
+          "ko": "기본 암호화가 적용된 my-backup-data-2023라는 새 버킷을 생성해주세요"
+        },
+        "agent_response": {
+          "en": "I'll create a new bucket named 'my-backup-data-2023' with default encryption enabled.\n\nBucket created successfully! I've also enabled AES-256 encryption for all objects uploaded to this bucket.",
+          "ko": "기본 암호화가 활성화된 'my-backup-data-2023'라는 새 버킷을 생성하겠습니다.\n\n버킷이 성공적으로 생성되었습니다! 또한 이 버킷에 업로드되는 모든 객체에 대해 AES-256 암호화를 활성화했습니다."
+        },
+        "pocket_operation": [
+          "create_bucket(Bucket='my-backup-data-2023')",
+          "put_bucket_encryption(Bucket='my-backup-data-2023', ServerSideEncryptionConfiguration={'Rules': [{'ApplyServerSideEncryptionByDefault': {'SSEAlgorithm': 'AES256'}}]})"
+        ],
+        "notes": {
+          "en": "Creates a bucket and then enables default encryption. Requires CreateBucket and PutEncryptionConfiguration permissions.",
+          "ko": "버킷을 생성한 다음 기본 암호화를 활성화합니다. CreateBucket 및 PutEncryptionConfiguration 권한이 필요합니다."
+        }
+      }
+    ]
+  }

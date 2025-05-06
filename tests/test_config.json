@@ -1,0 +1,21 @@
+{
+  "api_url": "http://localhost:8001",
+  "timeout": 30,
+  "verify_ssl": false,
+  "test_modes": ["local"],
+  "enable_external_tests": false,
+  "enable_internal_tests": false,
+  "internal_endpoint": "",
+  "test_scenarios": {
+    "basic": true,
+    "llm_service": true,
+    "rag_agent": true,
+    "performance": true,
+    "error_handling": true
+  },
+  "performance": {
+    "max_response_time": 1.0,
+    "max_avg_response_time": 2.0,
+    "concurrent_requests": 10
+  }
+}

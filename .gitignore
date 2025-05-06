@@ -1,0 +1,53 @@
+# 가상 환경
+venv/
+axiom_venv/
+test_venv/
+.env
+env/
+.venv/
+*.pyc
+__pycache__/
+test_venv/
+# 개발 환경 설정
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# 로그 파일
+*.log
+logs/
+
+# 임시 파일
+tmp/
+temp/
+.cache/
+.pytest_cache/
+
+# 데이터 파일
+data/docs/
+data/chroma_db/
+
+# 대용량 모델 파일
+models/*/pytorch_model.bin
+models/*/model.bin
+models/*/tf_model.h5
+
+# 설정 파일 (중요: .env 예제는 유지)
+.env
+!.env.example
+
+# 빌드 파일
+dist/
+build/
+*.egg-info/
+
+# 기타
+.ipynb_checkpoints/
+.coverage
+htmlcov/
+coverage/
+.mypy_cache/
+.ruff_cache/
+**/.claude/settings.local.json

@@ -1,0 +1,272 @@
+{
+  "api_endpoints": [
+    {
+      "endpoint": "/rest/api/2/myself",
+      "description": "현재 인증된 사용자 정보 조회",
+      "method": "GET",
+      "response": {
+        "name": "jira_agent",
+        "emailAddress": "jira.agent@internal.example.com",
+        "displayName": "Jira Agent",
+        "active": true,
+        "timeZone": "Asia/Seoul",
+        "locale": "ko_KR",
+        "groups": {
+          "size": 3,
+          "items": [
+            {"name": "jira-users"},
+            {"name": "jira-developers"},
+            {"name": "jira-administrators"}
+          ]
+        },
+        "applicationRoles": {
+          "size": 1,
+          "items": [
+            {"name": "jira-software"}
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "/rest/api/2/project",
+      "description": "프로젝트 목록 조회",
+      "method": "GET",
+      "response": [
+        {
+          "id": "10001",
+          "key": "SWDP",
+          "name": "SWDP 포털 개발",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "style": "classic",
+          "isPrivate": false,
+          "lead": {
+            "name": "admin"
+          },
+          "avatarUrls": {
+            "48x48": "https://jira.internal.example.com/secure/projectavatar?pid=10001&avatarId=10011"
+          }
+        },
+        {
+          "id": "10002",
+          "key": "AI",
+          "name": "AI 에이전트 개발",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "style": "next-gen",
+          "isPrivate": false,
+          "lead": {
+            "name": "manager1"
+          },
+          "avatarUrls": {
+            "48x48": "https://jira.internal.example.com/secure/projectavatar?pid=10002&avatarId=10011"
+          }
+        },
+        {
+          "id": "10003",
+          "key": "DEPLOY",
+          "name": "온프레미스 배포 시스템",
+          "projectTypeKey": "service_desk",
+          "simplified": false,
+          "style": "classic",
+          "isPrivate": false,
+          "lead": {
+            "name": "admin"
+          },
+          "avatarUrls": {
+            "48x48": "https://jira.internal.example.com/secure/projectavatar?pid=10003&avatarId=10011"
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/rest/api/2/issue",
+      "description": "이슈 생성",
+      "method": "POST",
+      "request_example": {
+        "fields": {
+          "project": {
+            "key": "AI"
+          },
+          "summary": "LLM 통합 모듈 개발",
+          "description": "OpenRouter API 연동 및 LLM 응답 처리 모듈 개발",
+          "issuetype": {
+            "name": "Task"
+          },
+          "priority": {
+            "name": "High"
+          },
+          "assignee": {
+            "name": "developer1"
+          }
+        }
+      },
+      "response": {
+        "id": "10101",
+        "key": "AI-101",
+        "self": "https://jira.internal.example.com/rest/api/2/issue/10101"
+      }
+    },
+    {
+      "endpoint": "/rest/api/2/search",
+      "description": "이슈 검색",
+      "method": "POST",
+      "request_example": {
+        "jql": "project = AI AND status != Done ORDER BY priority DESC",
+        "startAt": 0,
+        "maxResults": 10,
+        "fields": ["summary", "status", "assignee", "priority"]
+      },
+      "response": {
+        "expand": "schema,names",
+        "startAt": 0,
+        "maxResults": 10,
+        "total": 3,
+        "issues": [
+          {
+            "id": "10101",
+            "key": "AI-101",
+            "self": "https://jira.internal.example.com/rest/api/2/issue/10101",
+            "fields": {
+              "summary": "LLM 통합 모듈 개발",
+              "status": {
+                "name": "To Do",
+                "statusCategory": {
+                  "key": "new"
+                }
+              },
+              "assignee": {
+                "name": "developer1",
+                "displayName": "개발자1"
+              },
+              "priority": {
+                "name": "High"
+              }
+            }
+          },
+          {
+            "id": "10102",
+            "key": "AI-102",
+            "self": "https://jira.internal.example.com/rest/api/2/issue/10102",
+            "fields": {
+              "summary": "에이전트 오케스트레이션 구현",
+              "status": {
+                "name": "In Progress",
+                "statusCategory": {
+                  "key": "indeterminate"
+                }
+              },
+              "assignee": {
+                "name": "developer1",
+                "displayName": "개발자1"
+              },
+              "priority": {
+                "name": "High"
+              }
+            }
+          },
+          {
+            "id": "10103",
+            "key": "AI-103",
+            "self": "https://jira.internal.example.com/rest/api/2/issue/10103",
+            "fields": {
+              "summary": "RAG 모듈 구현",
+              "status": {
+                "name": "In Progress",
+                "statusCategory": {
+                  "key": "indeterminate"
+                }
+              },
+              "assignee": {
+                "name": "manager1",
+                "displayName": "프로젝트 매니저"
+              },
+              "priority": {
+                "name": "Medium"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "endpoint": "/rest/api/2/issue/{issueKey}",
+      "description": "이슈 상세 조회",
+      "method": "GET",
+      "path_params": {
+        "issueKey": "AI-101"
+      },
+      "response": {
+        "id": "10101",
+        "key": "AI-101",
+        "self": "https://jira.internal.example.com/rest/api/2/issue/10101",
+        "fields": {
+          "summary": "LLM 통합 모듈 개발",
+          "description": "OpenRouter API 연동 및 LLM 응답 처리 모듈 개발",
+          "issuetype": {
+            "name": "Task",
+            "iconUrl": "https://jira.internal.example.com/secure/viewavatar?size=medium&avatarId=10318&avatarType=issuetype"
+          },
+          "project": {
+            "id": "10002",
+            "key": "AI",
+            "name": "AI 에이전트 개발"
+          },
+          "status": {
+            "name": "To Do",
+            "statusCategory": {
+              "key": "new"
+            }
+          },
+          "assignee": {
+            "name": "developer1",
+            "displayName": "개발자1"
+          },
+          "priority": {
+            "name": "High"
+          },
+          "created": "2023-11-01T09:00:00.000+0900",
+          "updated": "2023-11-10T15:30:00.000+0900",
+          "creator": {
+            "name": "manager1",
+            "displayName": "프로젝트 매니저"
+          },
+          "reporter": {
+            "name": "manager1",
+            "displayName": "프로젝트 매니저"
+          },
+          "duedate": "2023-12-01",
+          "labels": ["llm", "integration"],
+          "components": [
+            {"name": "Backend"}
+          ],
+          "subtasks": [],
+          "comment": {
+            "comments": [
+              {
+                "id": "10201",
+                "author": {
+                  "name": "manager1",
+                  "displayName": "프로젝트 매니저"
+                },
+                "body": "OpenRouter API 키를 발급받아 설정 파일에 추가해주세요.",
+                "created": "2023-11-05T11:15:00.000+0900",
+                "updated": "2023-11-05T11:15:00.000+0900"
+              },
+              {
+                "id": "10202",
+                "author": {
+                  "name": "developer1",
+                  "displayName": "개발자1"
+                },
+                "body": "API 키 발급 완료했습니다. 빠른 시일 내에 개발 시작하겠습니다.",
+                "created": "2023-11-07T09:30:00.000+0900",
+                "updated": "2023-11-07T09:30:00.000+0900"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

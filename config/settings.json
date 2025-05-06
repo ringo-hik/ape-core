@@ -1,0 +1,82 @@
+{
+  "version": "0.5.0",
+  "app": {
+    "name": "APE (Agentic Pipeline Engine)",
+    "description": "온프레미스 Agentic Pipeline Engine 시스템"
+  },
+  "api": {
+    "host": "${API_HOST:localhost}",
+    "port": "${API_PORT:8001}",
+    "timeout": "${API_TIMEOUT:30}",
+    "stream": "${API_STREAM:true}"
+  },
+  "security": {
+    "use_ssl": "${USE_SSL:false}",
+    "ssl_cert": "${SSL_CERT}",
+    "ssl_key": "${SSL_KEY}",
+    "verify_ssl": "${VERIFY_SSL:false}"
+  },
+  "llm": {
+    "default_model": "${DEFAULT_MODEL:claude3-opus}",
+    "internal_endpoint": "${INTERNAL_LLM_ENDPOINT}",
+    "internal_api_key": "${INTERNAL_LLM_API_KEY}",
+    "models": {
+      "claude3-opus": {
+        "name": "Claude 3 Opus",
+        "id": "claude-3-opus-20240229",
+        "description": "Anthropic Claude 3 Opus 모델",
+        "endpoint": "https://api.anthropic.com/v1/messages",
+        "api_key_env": "ANTHROPIC_API_KEY",
+        "max_tokens": 4096,
+        "temperature": 0.7
+      },
+      "claude3-sonnet": {
+        "name": "Claude 3 Sonnet",
+        "id": "claude-3-sonnet-20240229",
+        "description": "Anthropic Claude 3 Sonnet 모델",
+        "endpoint": "https://api.anthropic.com/v1/messages",
+        "api_key_env": "ANTHROPIC_API_KEY",
+        "max_tokens": 4096,
+        "temperature": 0.7
+      }
+    }
+  },
+  "openrouter": {
+    "api_key_env": "OPENROUTER_API_KEY",
+    "model_id": "${OPENROUTER_MODEL_ID:anthropic/claude-3-opus}",
+    "endpoint": "https://openrouter.ai/api/v1/chat/completions"
+  },
+  "vector_db": {
+    "type": "${VECTOR_DB_TYPE:chroma}",
+    "persist_directory": "${VECTOR_DB_PATH:data/chroma_db}",
+    "collection_name": "${VECTOR_DB_COLLECTION:documents}",
+    "distance_func": "${VECTOR_DB_DISTANCE_FUNC:cosine}",
+    "embedding_function": "custom"
+  },
+  "embedding": {
+    "model_name": "${EMBEDDING_MODEL_NAME:all-MiniLM-L6-v2}",
+    "model_path": "${EMBEDDING_MODEL_PATH:all-MiniLM-L6-v2}",
+    "dimension": "${EMBEDDING_DIMENSION:384}",
+    "max_seq_length": "${EMBEDDING_MAX_SEQ_LENGTH:512}"
+  },
+  "document_processing": {
+    "chunk_size": "${DOCUMENT_CHUNK_SIZE:1000}",
+    "chunk_overlap": "${DOCUMENT_CHUNK_OVERLAP:200}",
+    "file_types": [".md", ".txt", ".pdf", ".docx", ".html"],
+    "exclude_patterns": ["*.temp.*", ".*", "**/node_modules/**"],
+    "index_metadata": true,
+    "extract_images": false
+  },
+  "search": {
+    "default_top_k": "${SEARCH_DEFAULT_TOP_K:3}",
+    "min_relevance_score": "${SEARCH_MIN_RELEVANCE_SCORE:0.6}",
+    "rerank_results": false,
+    "use_hybrid_search": false
+  },
+  "agents": {
+    "available": [
+      "rag",
+      "graph"
+    ]
+  }
+}

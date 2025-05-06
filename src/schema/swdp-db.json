@@ -1,0 +1,215 @@
+{
+  "tables": [
+    {
+      "name": "projects",
+      "description": "프로젝트 정보 테이블",
+      "columns": [
+        {"name": "id", "type": "INT", "primary_key": true, "auto_increment": true, "description": "프로젝트 ID"},
+        {"name": "name", "type": "VARCHAR(100)", "nullable": false, "description": "프로젝트 이름"},
+        {"name": "code", "type": "VARCHAR(20)", "nullable": false, "description": "프로젝트 코드"},
+        {"name": "description", "type": "TEXT", "nullable": true, "description": "프로젝트 설명"},
+        {"name": "start_date", "type": "DATE", "nullable": true, "description": "프로젝트 시작일"},
+        {"name": "end_date", "type": "DATE", "nullable": true, "description": "프로젝트 종료일"},
+        {"name": "status", "type": "VARCHAR(20)", "nullable": false, "default": "ACTIVE", "description": "프로젝트 상태 (ACTIVE, COMPLETED, SUSPENDED)"},
+        {"name": "manager_id", "type": "INT", "nullable": true, "description": "프로젝트 관리자 ID"},
+        {"name": "created_at", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP", "description": "생성 일시"},
+        {"name": "updated_at", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", "description": "수정 일시"}
+      ],
+      "foreign_keys": [
+        {"column": "manager_id", "referenced_table": "users", "referenced_column": "id"}
+      ],
+      "sample_data": [
+        {"id": 1, "name": "SWDP 포털 개발", "code": "SWDP-2023", "description": "소프트웨어 개발 포털 시스템 구축", "status": "ACTIVE", "manager_id": 1},
+        {"id": 2, "name": "AI 에이전트 개발", "code": "AI-AGENT", "description": "인공지능 에이전트 시스템 개발", "status": "ACTIVE", "manager_id": 2},
+        {"id": 3, "name": "온프레미스 배포 시스템", "code": "ON-PREM", "description": "온프레미스 환경 배포 시스템 구축", "status": "COMPLETED", "manager_id": 1}
+      ]
+    },
+    {
+      "name": "users",
+      "description": "사용자 정보 테이블",
+      "columns": [
+        {"name": "id", "type": "INT", "primary_key": true, "auto_increment": true, "description": "사용자 ID (내부용)"},
+        {"name": "single_id", "type": "VARCHAR(50)", "nullable": false, "description": "사용자 단일 ID (외부 시스템용)"},
+        {"name": "username", "type": "VARCHAR(50)", "nullable": false, "description": "사용자명"},
+        {"name": "email", "type": "VARCHAR(100)", "nullable": false, "description": "이메일"},
+        {"name": "password_hash", "type": "VARCHAR(255)", "nullable": false, "description": "암호화된 비밀번호"},
+        {"name": "full_name", "type": "VARCHAR(100)", "nullable": true, "description": "전체 이름"},
+        {"name": "department", "type": "VARCHAR(50)", "nullable": true, "description": "부서"},
+        {"name": "role", "type": "VARCHAR(20)", "nullable": false, "default": "USER", "description": "역할 (ADMIN, MANAGER, USER)"},
+        {"name": "is_active", "type": "BOOLEAN", "nullable": false, "default": true, "description": "활성 상태"},
+        {"name": "last_login", "type": "TIMESTAMP", "nullable": true, "description": "마지막 로그인 시간"},
+        {"name": "created_at", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP", "description": "생성 일시"}
+      ],
+      "foreign_keys": [],
+      "sample_data": [
+        {"id": 1, "single_id": "admin123", "username": "admin", "email": "admin@example.com", "full_name": "관리자", "department": "관리팀", "role": "ADMIN"},
+        {"id": 2, "single_id": "manager456", "username": "manager1", "email": "manager1@example.com", "full_name": "프로젝트 매니저", "department": "개발팀", "role": "MANAGER"},
+        {"id": 3, "single_id": "dev789", "username": "developer1", "email": "dev1@example.com", "full_name": "개발자1", "department": "개발팀", "role": "USER"}
+      ]
+    },
+    {
+      "name": "tasks",
+      "description": "작업 정보 테이블",
+      "columns": [
+        {"name": "id", "type": "INT", "primary_key": true, "auto_increment": true, "description": "작업 ID"},
+        {"name": "project_id", "type": "INT", "nullable": false, "description": "프로젝트 ID"},
+        {"name": "title", "type": "VARCHAR(200)", "nullable": false, "description": "작업 제목"},
+        {"name": "description", "type": "TEXT", "nullable": true, "description": "작업 설명"},
+        {"name": "status", "type": "VARCHAR(20)", "nullable": false, "default": "TODO", "description": "작업 상태 (TODO, IN_PROGRESS, REVIEW, DONE)"},
+        {"name": "priority", "type": "VARCHAR(10)", "nullable": false, "default": "MEDIUM", "description": "우선순위 (HIGH, MEDIUM, LOW)"},
+        {"name": "assigned_to", "type": "INT", "nullable": true, "description": "담당자 ID"},
+        {"name": "estimated_hours", "type": "DECIMAL(5,2)", "nullable": true, "description": "예상 소요 시간"},
+        {"name": "due_date", "type": "DATE", "nullable": true, "description": "마감일"},
+        {"name": "created_by", "type": "INT", "nullable": false, "description": "생성자 ID"},
+        {"name": "created_at", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP", "description": "생성 일시"},
+        {"name": "updated_at", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", "description": "수정 일시"}
+      ],
+      "foreign_keys": [
+        {"column": "project_id", "referenced_table": "projects", "referenced_column": "id"},
+        {"column": "assigned_to", "referenced_table": "users", "referenced_column": "id"},
+        {"column": "created_by", "referenced_table": "users", "referenced_column": "id"}
+      ],
+      "sample_data": [
+        {"id": 1, "project_id": 1, "title": "데이터베이스 설계", "status": "DONE", "priority": "HIGH", "assigned_to": 3, "created_by": 2},
+        {"id": 2, "project_id": 1, "title": "API 구현", "status": "IN_PROGRESS", "priority": "HIGH", "assigned_to": 3, "created_by": 2},
+        {"id": 3, "project_id": 2, "title": "에이전트 모듈 설계", "status": "TODO", "priority": "MEDIUM", "assigned_to": 3, "created_by": 2},
+        {"id": 4, "project_id": 2, "title": "LLM 통합", "status": "TODO", "priority": "HIGH", "assigned_to": null, "created_by": 2}
+      ]
+    },
+    {
+      "name": "documents",
+      "description": "문서 정보 테이블",
+      "columns": [
+        {"name": "id", "type": "INT", "primary_key": true, "auto_increment": true, "description": "문서 ID"},
+        {"name": "project_id", "type": "INT", "nullable": false, "description": "프로젝트 ID"},
+        {"name": "title", "type": "VARCHAR(200)", "nullable": false, "description": "문서 제목"},
+        {"name": "content", "type": "TEXT", "nullable": true, "description": "문서 내용"},
+        {"name": "type", "type": "VARCHAR(50)", "nullable": false, "description": "문서 유형 (REQUIREMENT, DESIGN, MANUAL, ETC)"},
+        {"name": "status", "type": "VARCHAR(20)", "nullable": false, "default": "DRAFT", "description": "문서 상태 (DRAFT, REVIEW, APPROVED)"},
+        {"name": "version", "type": "VARCHAR(20)", "nullable": false, "default": "1.0", "description": "문서 버전"},
+        {"name": "created_by", "type": "INT", "nullable": false, "description": "생성자 ID"},
+        {"name": "approved_by", "type": "INT", "nullable": true, "description": "승인자 ID"},
+        {"name": "created_at", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP", "description": "생성 일시"},
+        {"name": "updated_at", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", "description": "수정 일시"}
+      ],
+      "foreign_keys": [
+        {"column": "project_id", "referenced_table": "projects", "referenced_column": "id"},
+        {"column": "created_by", "referenced_table": "users", "referenced_column": "id"},
+        {"column": "approved_by", "referenced_table": "users", "referenced_column": "id"}
+      ],
+      "sample_data": [
+        {"id": 1, "project_id": 1, "title": "SWDP 요구사항 명세서", "type": "REQUIREMENT", "status": "APPROVED", "version": "1.2", "created_by": 2, "approved_by": 1},
+        {"id": 2, "project_id": 1, "title": "데이터베이스 설계서", "type": "DESIGN", "status": "APPROVED", "version": "1.0", "created_by": 3, "approved_by": 2},
+        {"id": 3, "project_id": 2, "title": "AI 에이전트 아키텍처", "type": "DESIGN", "status": "REVIEW", "version": "0.9", "created_by": 2, "approved_by": null}
+      ]
+    },
+    {
+      "name": "build_requests",
+      "description": "빌드 요청 정보 테이블",
+      "columns": [
+        {"name": "id", "type": "INT", "primary_key": true, "auto_increment": true, "description": "빌드 요청 ID"},
+        {"name": "build_request_id", "type": "VARCHAR(50)", "nullable": false, "description": "빌드 요청 고유 ID (외부 참조용)"},
+        {"name": "project_id", "type": "INT", "nullable": false, "description": "프로젝트 ID"},
+        {"name": "title", "type": "VARCHAR(200)", "nullable": false, "description": "빌드 제목"},
+        {"name": "description", "type": "TEXT", "nullable": true, "description": "빌드 설명"},
+        {"name": "branch", "type": "VARCHAR(100)", "nullable": false, "description": "소스 브랜치"},
+        {"name": "commit_id", "type": "VARCHAR(40)", "nullable": false, "description": "커밋 해시"},
+        {"name": "status", "type": "VARCHAR(20)", "nullable": false, "default": "PENDING", "description": "빌드 상태 (PENDING, IN_PROGRESS, SUCCEEDED, FAILED, CANCELED)"},
+        {"name": "environment", "type": "VARCHAR(50)", "nullable": false, "description": "빌드 환경 (DEV, TEST, STAGE, PROD)"},
+        {"name": "requested_by", "type": "INT", "nullable": false, "description": "요청자 ID"},
+        {"name": "approved_by", "type": "INT", "nullable": true, "description": "승인자 ID"},
+        {"name": "started_at", "type": "TIMESTAMP", "nullable": true, "description": "빌드 시작 시간"},
+        {"name": "finished_at", "type": "TIMESTAMP", "nullable": true, "description": "빌드 종료 시간"},
+        {"name": "created_at", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP", "description": "생성 일시"},
+        {"name": "updated_at", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", "description": "수정 일시"}
+      ],
+      "foreign_keys": [
+        {"column": "project_id", "referenced_table": "projects", "referenced_column": "id"},
+        {"column": "requested_by", "referenced_table": "users", "referenced_column": "id"},
+        {"column": "approved_by", "referenced_table": "users", "referenced_column": "id"}
+      ],
+      "sample_data": [
+        {"id": 1, "build_request_id": "BR-123456", "project_id": 1, "title": "메인 포털 빌드", "description": "포털 메인 페이지 및 API 구현", "branch": "feature/main-portal", "commit_id": "a1b2c3d4e5f6", "status": "SUCCEEDED", "environment": "DEV", "requested_by": 3, "approved_by": 2, "started_at": "2023-09-01 10:30:00", "finished_at": "2023-09-01 10:45:00"},
+        {"id": 2, "build_request_id": "BR-123457", "project_id": 1, "title": "사용자 인증 모듈", "description": "OAuth 통합 인증 모듈", "branch": "feature/auth", "commit_id": "f6e5d4c3b2a1", "status": "IN_PROGRESS", "environment": "DEV", "requested_by": 3, "approved_by": 2, "started_at": "2023-09-02 09:15:00", "finished_at": null},
+        {"id": 3, "build_request_id": "BR-123458", "project_id": 2, "title": "에이전트 코어 모듈", "description": "AI 에이전트 코어 모듈 빌드", "branch": "feature/agent-core", "commit_id": "1a2b3c4d5e6f", "status": "PENDING", "environment": "DEV", "requested_by": 3, "approved_by": null, "started_at": null, "finished_at": null}
+      ]
+    },
+    {
+      "name": "build_logs",
+      "description": "빌드 로그 정보 테이블",
+      "columns": [
+        {"name": "id", "type": "INT", "primary_key": true, "auto_increment": true, "description": "로그 ID"},
+        {"name": "build_id", "type": "INT", "nullable": false, "description": "빌드 ID"},
+        {"name": "step", "type": "VARCHAR(50)", "nullable": false, "description": "빌드 단계 (CHECKOUT, BUILD, TEST, DEPLOY, ETC)"},
+        {"name": "status", "type": "VARCHAR(20)", "nullable": false, "description": "로그 상태 (INFO, WARNING, ERROR)"},
+        {"name": "message", "type": "TEXT", "nullable": false, "description": "로그 메시지"},
+        {"name": "timestamp", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP", "description": "로그 시간"}
+      ],
+      "foreign_keys": [
+        {"column": "build_id", "referenced_table": "build_requests", "referenced_column": "id"}
+      ],
+      "sample_data": [
+        {"id": 1, "build_id": 1, "step": "CHECKOUT", "status": "INFO", "message": "소스 코드 체크아웃 완료", "timestamp": "2023-09-01 10:30:15"},
+        {"id": 2, "build_id": 1, "step": "BUILD", "status": "INFO", "message": "빌드 성공", "timestamp": "2023-09-01 10:35:20"},
+        {"id": 3, "build_id": 1, "step": "TEST", "status": "INFO", "message": "테스트 통과 (100/100)", "timestamp": "2023-09-01 10:40:30"},
+        {"id": 4, "build_id": 1, "step": "DEPLOY", "status": "INFO", "message": "DEV 환경 배포 완료", "timestamp": "2023-09-01 10:45:00"},
+        {"id": 5, "build_id": 2, "step": "CHECKOUT", "status": "INFO", "message": "소스 코드 체크아웃 완료", "timestamp": "2023-09-02 09:15:15"},
+        {"id": 6, "build_id": 2, "step": "BUILD", "status": "INFO", "message": "빌드 진행 중", "timestamp": "2023-09-02 09:16:20"}
+      ]
+    },
+    {
+      "name": "tr_data",
+      "description": "TR(Technical Request) 정보 테이블",
+      "columns": [
+        {"name": "id", "type": "INT", "primary_key": true, "auto_increment": true, "description": "TR ID"},
+        {"name": "tr_code", "type": "VARCHAR(50)", "nullable": false, "description": "TR 코드 (외부 참조용)"},
+        {"name": "project_id", "type": "INT", "nullable": false, "description": "프로젝트 ID"},
+        {"name": "title", "type": "VARCHAR(200)", "nullable": false, "description": "TR 제목"},
+        {"name": "description", "type": "TEXT", "nullable": true, "description": "TR 설명"},
+        {"name": "status", "type": "VARCHAR(20)", "nullable": false, "default": "DRAFT", "description": "상태 (DRAFT, SUBMITTED, REVIEW, APPROVED, REJECTED)"},
+        {"name": "priority", "type": "VARCHAR(10)", "nullable": false, "default": "MEDIUM", "description": "우선순위 (HIGH, MEDIUM, LOW)"},
+        {"name": "type", "type": "VARCHAR(20)", "nullable": false, "description": "TR 유형 (BUG_FIX, FEATURE, ENHANCEMENT, SECURITY)"},
+        {"name": "target_release", "type": "VARCHAR(50)", "nullable": true, "description": "목표 릴리스 버전"},
+        {"name": "requested_by", "type": "INT", "nullable": false, "description": "요청자 ID"},
+        {"name": "assigned_to", "type": "INT", "nullable": true, "description": "담당자 ID"},
+        {"name": "approved_by", "type": "INT", "nullable": true, "description": "승인자 ID"},
+        {"name": "created_at", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP", "description": "생성 일시"},
+        {"name": "updated_at", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", "description": "수정 일시"}
+      ],
+      "foreign_keys": [
+        {"column": "project_id", "referenced_table": "projects", "referenced_column": "id"},
+        {"column": "requested_by", "referenced_table": "users", "referenced_column": "id"},
+        {"column": "assigned_to", "referenced_table": "users", "referenced_column": "id"},
+        {"column": "approved_by", "referenced_table": "users", "referenced_column": "id"}
+      ],
+      "sample_data": [
+        {"id": 1, "tr_code": "TR-2023-001", "project_id": 1, "title": "로그인 보안 기능 강화", "description": "2FA 인증 추가", "status": "APPROVED", "priority": "HIGH", "type": "SECURITY", "requested_by": 2, "assigned_to": 3, "approved_by": 1},
+        {"id": 2, "tr_code": "TR-2023-002", "project_id": 1, "title": "사용자 대시보드 개선", "description": "사용자 대시보드 UI/UX 개선", "status": "REVIEW", "priority": "MEDIUM", "type": "ENHANCEMENT", "requested_by": 2, "assigned_to": 3, "approved_by": null},
+        {"id": 3, "tr_code": "TR-2023-003", "project_id": 2, "title": "AI 에이전트 응답 속도 최적화", "description": "응답 캐싱 및 병렬 처리 구현", "status": "SUBMITTED", "priority": "HIGH", "type": "ENHANCEMENT", "requested_by": 3, "assigned_to": null, "approved_by": null}
+      ]
+    },
+    {
+      "name": "user_project_roles",
+      "description": "사용자 프로젝트 역할 정보 테이블",
+      "columns": [
+        {"name": "id", "type": "INT", "primary_key": true, "auto_increment": true, "description": "관계 ID"},
+        {"name": "user_id", "type": "INT", "nullable": false, "description": "사용자 ID"},
+        {"name": "project_id", "type": "INT", "nullable": false, "description": "프로젝트 ID"},
+        {"name": "role", "type": "VARCHAR(50)", "nullable": false, "description": "프로젝트 내 역할 (OWNER, ADMIN, DEVELOPER, VIEWER)"},
+        {"name": "created_at", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP", "description": "생성 일시"},
+        {"name": "updated_at", "type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", "description": "수정 일시"}
+      ],
+      "foreign_keys": [
+        {"column": "user_id", "referenced_table": "users", "referenced_column": "id"},
+        {"column": "project_id", "referenced_table": "projects", "referenced_column": "id"}
+      ],
+      "sample_data": [
+        {"id": 1, "user_id": 1, "project_id": 1, "role": "OWNER"},
+        {"id": 2, "user_id": 2, "project_id": 1, "role": "ADMIN"},
+        {"id": 3, "user_id": 3, "project_id": 1, "role": "DEVELOPER"},
+        {"id": 4, "user_id": 2, "project_id": 2, "role": "OWNER"},
+        {"id": 5, "user_id": 3, "project_id": 2, "role": "DEVELOPER"}
+      ]
+    }
+  ]
+}
