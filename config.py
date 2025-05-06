@@ -68,31 +68,6 @@ MODELS_CONFIG = {
             }
         }
     },
-    "openrouter-claude": {
-        "name": "OpenRouter Claude",
-        "id": "anthropic/claude-3-opus",
-        "description": "OpenRouter를 통한 테스트용 모델",
-        "provider": "openrouter",
-        "endpoint": get_env("OPENROUTER_ENDPOINT", "https://openrouter.ai/api/v1/chat/completions"),
-        "apiKey": get_env("OPENROUTER_API_KEY", ""),
-        "maxTokens": 4096,
-        "temperature": 0.7,
-        "requestTemplate": {
-            "headers": {
-                "Authorization": "Bearer ${API_KEY}",
-                "HTTP-Referer": "APE-Core-API",
-                "X-Title": "APE (Agentic Pipeline Engine)",
-                "Content-Type": "application/json"
-            },
-            "payload": {
-                "model": "anthropic/claude-3-opus",
-                "max_tokens": 4096,
-                "temperature": "${TEMPERATURE}",
-                "stream": "${STREAM}",
-                "messages": []
-            }
-        }
-    },
     "openrouter-llama": {
         "name": "OpenRouter Llama3",
         "id": "meta/llama-3-70b-instruct",
@@ -131,7 +106,7 @@ def get_default_model() -> str:
         return "internal-model"
     elif "OPENROUTER_API_KEY" in os.environ:
         # 내부망 모델을 사용할 수 없고 OpenRouter 키가 있으면 OpenRouter 모델 사용
-        return "openrouter-claude"  # 기본 오픈라우터 모델
+        return "openrouter-llama"  # 기본 오픈라우터 모델
     else:
         # 기본값 반환 (DEFAULT_MODEL이 사용 가능하면 사용)
         if DEFAULT_MODEL in MODELS_CONFIG:

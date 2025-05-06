@@ -9,31 +9,6 @@ from src.core.env_loader import get_env, get_int_env, get_float_env, get_boolean
 
 # 외부 모델 구성
 EXTERNAL_MODELS = {
-    "openrouter-claude": {
-        "name": "OpenRouter Claude",
-        "id": "anthropic/claude-3-opus",
-        "description": "OpenRouter를 통한 Claude 3 Opus 모델",
-        "provider": "openrouter",
-        "endpoint": get_env("OPENROUTER_ENDPOINT", "https://openrouter.ai/api/v1/chat/completions"),
-        "apiKey": get_env("OPENROUTER_API_KEY", ""),
-        "maxTokens": get_int_env("OPENROUTER_MAX_TOKENS", 4096),
-        "temperature": get_float_env("OPENROUTER_TEMPERATURE", 0.7),
-        "requestTemplate": {
-            "headers": {
-                "Authorization": "Bearer ${API_KEY}",
-                "HTTP-Referer": "APE-Core-API",
-                "X-Title": "APE (Agentic Pipeline Engine)",
-                "Content-Type": "application/json"
-            },
-            "payload": {
-                "model": "anthropic/claude-3-opus",
-                "max_tokens": 4096,
-                "temperature": "${TEMPERATURE}",
-                "stream": "${STREAM}",
-                "messages": []
-            }
-        }
-    },
     "openrouter-llama": {
         "name": "OpenRouter Llama3",
         "id": "meta/llama-3-70b-instruct",
@@ -87,7 +62,7 @@ EXTERNAL_MODELS = {
 }
 
 # 기본 외부 모델 키
-DEFAULT_EXTERNAL_MODEL = "openrouter-claude"
+DEFAULT_EXTERNAL_MODEL = "openrouter-llama"
 
 def get_external_models():
     """외부망 모델 구성 반환"""
