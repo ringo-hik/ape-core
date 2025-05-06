@@ -39,7 +39,6 @@ class SWDPAgent(BaseAgent):
         
         # Open API 설정
         self.internal_swdp_api = swdp_config.get('internal_swdp_api', "https://internal-swdp.example.com/api/v1")
-        self.api_key = swdp_config.get('api_key', "")
         self.verify_ssl = swdp_config.get('verify_ssl', False)
         self.timeout = swdp_config.get('timeout', 30)
         
@@ -50,10 +49,13 @@ class SWDPAgent(BaseAgent):
         )
         
         # API 인증 헤더 설정
-        if self.api_key:
+        if self.username and self.password:
+            import base64
+            auth_str = f"{self.username}:{self.password}"
+            encoded_auth = base64.b64encode(auth_str.encode()).decode()
             self.session.headers.update({
-                "X-API-Key": self.api_key,
-                "Authorization": f"Bearer {self.api_key}"
+                "Authorization": f"Basic {encoded_auth}",
+                "Content-Type": "application/json"
             })
         
         # 스키마 정보 로드
@@ -97,8 +99,7 @@ class SWDPAgent(BaseAgent):
                 data=data,
                 params=params,
                 headers={
-                    "X-API-Key": self.api_key,
-                    "Authorization": f"Bearer {self.api_key}"
+                    "Authorization": f"Basic {base64.b64encode(f'{self.username}:{self.password}'.encode()).decode()}"
                 },
                 verify_ssl=self.verify_ssl,
                 timeout=self.timeout

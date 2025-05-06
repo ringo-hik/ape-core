@@ -131,7 +131,7 @@ class BitbucketAgent:
         }
     
     def _get_bitbucket_headers(self) -> Dict[str, str]:
-        """Bitbucket API 헤더 생성"""
+        """Bitbucket API 헤더 생성 - Basic 인증 사용"""
         auth_str = f"{self.username}:{self.password}"
         auth_token = base64.b64encode(auth_str.encode()).decode()
         

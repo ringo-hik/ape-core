@@ -22,12 +22,12 @@ class S3Agent:
         self.agent_id = f"s3-{uuid.uuid4()}"
         
         # 설정 로드
-        s3_config = config.get_s3_tool_config()
-        self.enabled = s3_config["enabled"]
-        self.aws_access_key = s3_config["aws_access_key"]
-        self.aws_secret_key = s3_config["aws_secret_key"]
-        self.region_name = s3_config["region_name"]
-        self.timeout = s3_config["timeout"]
+        s3_config = config.get_s3_tool_config() if hasattr(config, 'get_s3_tool_config') else {}
+        self.enabled = s3_config.get("enabled", True)
+        self.username = s3_config.get("username", "")
+        self.password = s3_config.get("password", "")
+        self.region_name = s3_config.get("region_name", "us-east-1")
+        self.timeout = s3_config.get("timeout", 30)
         
         logger.info(f"S3 에이전트 초기화: {self.agent_id} (활성화: {self.enabled})")
     

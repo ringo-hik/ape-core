@@ -34,7 +34,7 @@ class JiraAgent(BaseAgent):
         self.enabled = self.jira_config.get('enabled', True)
         self.api_url = self.jira_config.get('api_url', "https://jira.internal.example.com/rest/api/2")
         self.username = self.jira_config.get('username', "jira_agent")
-        self.api_token = self.jira_config.get('api_token', "")
+        self.password = self.jira_config.get('password', "")
         
         # Mock 모드 설정
         self.mock_mode = True  # 항상 Mock 모드로 실행
@@ -49,9 +49,9 @@ class JiraAgent(BaseAgent):
             self.session = get_secure_http_session(timeout=30, verify_ssl=False)
             
             # 기본 인증 설정
-            if self.username and self.api_token:
+            if self.username and self.password:
                 import base64
-                auth_str = f"{self.username}:{self.api_token}"
+                auth_str = f"{self.username}:{self.password}"
                 encoded_auth = base64.b64encode(auth_str.encode()).decode()
                 self.session.headers.update({
                     "Authorization": f"Basic {encoded_auth}",

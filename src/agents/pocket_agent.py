@@ -33,8 +33,8 @@ class PocketAgent(BaseAgent):
         self.pocket_config = config.get_pocket_tool_config() if hasattr(config, 'get_pocket_tool_config') else {}
         self.enabled = self.pocket_config.get('enabled', True)
         self.api_url = self.pocket_config.get('api_url', "https://pocket.internal.example.com/api/v1")
-        self.access_key = self.pocket_config.get('access_key', "")
-        self.secret_key = self.pocket_config.get('secret_key', "")
+        self.username = self.pocket_config.get('username', "")
+        self.password = self.pocket_config.get('password', "")
         
         # Mock 모드 설정
         self.mock_mode = True  # 항상 Mock 모드로 실행
@@ -49,10 +49,12 @@ class PocketAgent(BaseAgent):
             self.session = get_secure_http_session(timeout=30, verify_ssl=False)
             
             # API 인증 헤더 설정
-            if self.access_key and self.secret_key:
+            if self.username and self.password:
+                import base64
+                auth_str = f"{self.username}:{self.password}"
+                encoded_auth = base64.b64encode(auth_str.encode()).decode()
                 self.session.headers.update({
-                    "X-Pocket-Access-Key": self.access_key,
-                    "X-Pocket-Secret-Key": self.secret_key,
+                    "Authorization": f"Basic {encoded_auth}",
                     "Content-Type": "application/json"
                 })
         

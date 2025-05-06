@@ -12,7 +12,7 @@ import json
 from typing import Dict, Any, List, Optional
 
 # 환경 변수 로더 모듈 임포트
-from src.core.env_loader import get_env, get_boolean_env, get_int_env, get_float_env, get_list_env, get_dict_env
+from src.core.env_loader import get_env, get_boolean_env, get_int_env, get_float_env, get_list_env, get_dict_env, get_db_uri_env
 
 # 로깅 설정
 logging.basicConfig(
@@ -174,10 +174,9 @@ SWDP_TOOL_CONFIG = {
     "username": get_env("SWDP_USERNAME", "swdp_agent"),
     "password": get_env("SWDP_PASSWORD", "swdp_password"),
     "internal_swdp_api": get_env("SWDP_INTERNAL_API", "https://internal-swdp.example.com/api/v1"),
-    "api_key": get_env("SWDP_API_KEY", "swdp_api_key_example"),
     "verify_ssl": get_boolean_env("VERIFY_SSL", False),
     "timeout": get_int_env("SWDP_TIMEOUT", 30),  # 초 단위
-    "db_uri": get_env("SWDP_DB_URI", "postgresql://user:password@localhost:5432/swdp_db")
+    "db_uri": get_db_uri_env("SWDP_DB_URI", "postgresql://user:password@localhost:5432/swdp_db")
 }
 
 def get_swdp_tool_config() -> Dict[str, Any]:
@@ -195,7 +194,6 @@ JIRA_TOOL_CONFIG = {
     "api_url": get_env("JIRA_API_URL", "https://jira.example.com/rest/api/2"),
     "username": get_env("JIRA_USERNAME", "jira_agent"),
     "password": get_env("JIRA_PASSWORD", "jira_password"),
-    "api_key": get_env("JIRA_API_KEY", "jira_api_key_example"),
     "verify_ssl": get_boolean_env("VERIFY_SSL", False),
     "timeout": get_int_env("JIRA_TIMEOUT", 30),  # 초 단위
     "default_project": get_env("JIRA_DEFAULT_PROJECT", "DEMO")
@@ -216,7 +214,6 @@ BITBUCKET_TOOL_CONFIG = {
     "api_url": get_env("BITBUCKET_API_URL", "https://bitbucket.example.com/rest/api/1.0"),
     "username": get_env("BITBUCKET_USERNAME", "bitbucket_agent"),
     "password": get_env("BITBUCKET_PASSWORD", "bitbucket_password"),
-    "api_key": get_env("BITBUCKET_API_KEY", "bitbucket_api_key_example"),
     "verify_ssl": get_boolean_env("VERIFY_SSL", False),
     "timeout": get_int_env("BITBUCKET_TIMEOUT", 30)  # 초 단위
 }
@@ -234,10 +231,8 @@ def get_bitbucket_tool_config() -> Dict[str, Any]:
 POCKET_TOOL_CONFIG = {
     "enabled": get_boolean_env("POCKET_ENABLED", True),
     "api_url": get_env("POCKET_API_URL", "https://pocket.example.com/api"),
-    "api_key": get_env("POCKET_API_KEY", "pocket_api_key_example"),
-    "access_key": get_env("POCKET_ACCESS_KEY", "pocket_access_key_example"),
-    "consumer_key": get_env("POCKET_CONSUMER_KEY", "pocket_consumer_key_example"),
-    "secret_key": get_env("POCKET_SECRET_KEY", "pocket_secret_key_example"),
+    "username": get_env("POCKET_USERNAME", "pocket_user"),
+    "password": get_env("POCKET_PASSWORD", "pocket_password"),
     "region_name": get_env("POCKET_REGION", "us-east-1"),
     "verify_ssl": get_boolean_env("VERIFY_SSL", False),
     "timeout": get_int_env("POCKET_TIMEOUT", 30)  # 초 단위
@@ -251,3 +246,23 @@ def get_pocket_tool_config() -> Dict[str, Any]:
         Pocket 도구 설정 사전
     """
     return POCKET_TOOL_CONFIG
+    
+# S3 툴 설정
+S3_TOOL_CONFIG = {
+    "enabled": get_boolean_env("S3_ENABLED", True),
+    "api_url": get_env("S3_API_URL", "https://s3.amazonaws.com"),
+    "username": get_env("S3_USERNAME", "s3_user"),
+    "password": get_env("S3_PASSWORD", "s3_password"),
+    "region_name": get_env("S3_REGION", "us-east-1"),
+    "verify_ssl": get_boolean_env("VERIFY_SSL", False),
+    "timeout": get_int_env("S3_TIMEOUT", 30)  # 초 단위
+}
+
+def get_s3_tool_config() -> Dict[str, Any]:
+    """
+    S3 도구 설정 반환
+    
+    Returns:
+        S3 도구 설정 사전
+    """
+    return S3_TOOL_CONFIG

@@ -34,6 +34,19 @@ APE(Agentic Pipeline Engine)는 온프레미스 환경에서 동작하는 AI Age
     cp .env.example .env
     ```
     `.env` 파일을 편집하여 필요한 API 키 및 설정을 추가합니다.
+    
+    **참고**: 데이터베이스 URI에 특수 문자(`@`, `:`, `/` 등)가 포함된 사용자 이름이나 비밀번호가 있는 경우, 자동으로 URL 인코딩이 적용됩니다.
+    
+    예시:
+    ```
+    # .env 파일
+    SWDP_DB_URI=postgresql://user@name:p@ssw0rd@localhost:5432/swdp_db
+    ```
+    
+    위 설정은 내부적으로 다음과 같이 변환됩니다:
+    ```
+    postgresql://user%40name:p%40ssw0rd@localhost:5432/swdp_db
+    ```
 
 ### 실행 방법
 
