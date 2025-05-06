@@ -2,45 +2,88 @@
 echo APE (Agentic Pipeline Engine) Setup Script
 echo ========================================
 
-REM 가상환경 확인
+REM Check if virtual environment exists
 if not exist ape-venv (
-    echo Error: ape-venv 가상환경 디렉토리가 존재하지 않습니다.
-    echo 가상환경을 먼저 생성하세요: python -m venv ape-venv
+    echo Creating virtual environment...
+    python -m venv ape-venv
+    if errorlevel 1 (
+        echo Error: Failed to create virtual environment. Please ensure Python is correctly installed.
+        exit /b 1
+    )
+) else (
+    echo Virtual environment already exists.
+)
+
+echo Activating virtual environment...
+call ape-venv\Scripts\activate.bat
+
+echo Upgrading pip...
+pip install --upgrade pip
+
+echo Installing dependencies...
+if exist requirements.txt (
+    echo Installing packages from requirements.txt...
+    pip install -r requirements.txt
+    if errorlevel 1 (
+        echo Warning: Some packages failed to install. Installing essential packages individually...
+        
+        echo Installing basic packages...
+        pip install -q python-dotenv requests fastapi uvicorn pydantic
+        pip install -q python-multipart tqdm
+        
+        echo Installing vector database packages...
+        pip install -q numpy || echo Warning: numpy installation failed
+        pip install -q chromadb || echo Warning: chromadb installation failed
+        pip install -q sentence-transformers || echo Warning: sentence-transformers installation failed
+        
+        echo Installing AI/ML libraries...
+        pip install -q typing-extensions || echo Warning: typing-extensions installation failed
+        pip install -q langchain || echo Warning: langchain installation failed
+        pip install -q langgraph || echo Warning: langgraph installation failed
+    )
+) else (
+    echo Error: requirements.txt file not found.
+    echo Please create a requirements.txt file and run this script again.
     exit /b 1
 )
 
-echo 가상환경 활성화 중...
-call ape-venv\Scripts\activate.bat
-
-echo 기본 패키지 설치 중...
-pip install -q python-dotenv requests
-
-echo LLM 및 API 서버 패키지 설치 중...
-pip install -q fastapi uvicorn pydantic python-multipart tqdm
-
-echo 벡터 데이터베이스 및 임베딩 패키지 설치 중...
-pip install -q chromadb sentence-transformers numpy
-
-echo LangChain 및 LangGraph 패키지 설치 중...
-pip install -q langgraph langchain
-
-echo 환경 파일 설정 중...
+echo Setting up environment file...
 if not exist .env (
     if exist .env.example (
         copy .env.example .env
-        echo .env 파일이 .env.example에서 복사되었습니다. 필요한 경우 수정하세요.
+        echo .env file copied from .env.example.
+        echo Please edit the .env file to configure your settings.
+        echo Particularly, set the NETWORK_MODE to "internal" for internal network deployment.
     ) else (
-        echo .env.example 파일이 없습니다. .env 파일을 수동으로 생성해야 합니다.
+        echo .env.example file not found. Creating a basic .env file...
+        echo # Auto-generated .env file > .env
+        echo NETWORK_MODE=external >> .env
+        echo API_HOST=0.0.0.0 >> .env
+        echo API_PORT=8001 >> .env
+        echo VERIFY_SSL=false >> .env
+        echo Basic .env file created. Please edit it to configure your settings.
     )
 ) else (
-    echo .env 파일이 이미 존재합니다.
+    echo .env file already exists.
 )
 
+echo Creating necessary directories...
+if not exist data\docs mkdir data\docs
+if not exist data\chroma_db mkdir data\chroma_db
+
 echo.
-echo 설치 완료!
+echo ======================================
+echo Installation Complete!
+echo ======================================
 echo.
-echo 서버 실행 방법:
-echo python run.py
+echo To run the server:
+echo python run.py --mode [internal^|external]
 echo.
-echo 서버는 기본적으로 http://localhost:8001 에서 실행됩니다.
-echo API 문서는 http://localhost:8001/docs 에서 확인할 수 있습니다.
+echo For internal network: python run.py --mode internal
+echo For external network: python run.py --mode external (default)
+echo.
+echo Debug mode: python run.py --debug
+echo.
+echo Server will run at http://localhost:8001 by default
+echo API documentation is available at http://localhost:8001/docs
+echo ======================================
