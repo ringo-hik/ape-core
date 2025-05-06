@@ -11,11 +11,11 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Union
 from dotenv import load_dotenv
 
-# 메인 구성 파일에서 가져오기
-from config import get_model_config, get_available_models, get_default_model, set_default_model
-
 # 로거 설정
 logger = logging.getLogger("config")
+
+# 순환 임포트 문제 해결을 위해 지연 임포트 사용
+# 필요한 위치에서 동적으로 임포트합니다
 
 # 기본 디렉토리 설정
 BASE_DIR = Path(__file__).parent.parent.parent.absolute()

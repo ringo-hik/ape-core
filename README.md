@@ -37,16 +37,36 @@ APE(Agentic Pipeline Engine)는 온프레미스 환경에서 동작하는 AI Age
 
 ### 실행 방법
 
-빌드 및 실행 스크립트를 사용하여 서버를 실행합니다:
+제공된 실행 스크립트를 사용하여 서버를 실행합니다:
 
-```
-./build_and_run.sh
+```bash
+# 외부망 모드로 실행 (기본값)
+./run_ape.sh
+
+# 내부망 모드로 실행
+./run_ape.sh --internal
+
+# 디버그 모드 활성화
+./run_ape.sh --debug
+
+# 내부망 모드 + 디버그 모드
+./run_ape.sh --internal --debug
 ```
 
-또는 직접 실행:
+또는 직접 Python 스크립트 실행:
 
-```
+```bash
+# 외부망 모드로 실행 (기본값)
 python run.py
+
+# 내부망 모드로 실행
+python run.py --mode internal
+
+# 디버그 모드 활성화
+python run.py --debug
+
+# 도움말 표시
+python run.py --help
 ```
 
 기본적으로 서버는 `http://localhost:8001`에서 실행됩니다.
@@ -84,13 +104,26 @@ curl -X POST http://localhost:8001/agents/rag \
 
 ## 내부망/외부망 연결
 
-APE는 내부망/외부망 LLM 서비스를 자동으로 선택하여 사용합니다:
+APE는 내부망/외부망 설정을 완전히 분리하여 빌드 모드에 따라 다른 설정을 사용합니다:
 
-1. 내부망 LLM API 사용 시도
-2. 연결 실패 시 OpenRouter API 사용 시도
-3. 연결 실패 시 Anthropic API 직접 사용 시도
+### 네트워크 모드
 
-환경 설정에서 연결 우선순위 및 설정을 변경할 수 있습니다.
+- **외부망 모드**: 개발 및 테스트용 모드로, OpenRouter 등 외부 LLM API를 사용합니다.
+- **내부망 모드**: 실제 배포 환경용 모드로, 내부망 LLM 서비스를 사용합니다.
+
+### 자동 전환 기능
+
+각 네트워크 모드에서도 장애 발생 시 자동 전환 기능을 제공합니다:
+
+1. 내부망 모드에서 내부 LLM API 연결 실패 시:
+   - 내부망 모드(strict)에서는 실패 처리
+   - 내부망 모드(일반)에서는 외부망으로 자동 전환 시도
+   
+2. 외부망 모드에서 외부 LLM API 연결 실패 시:
+   - 외부망 모드(strict)에서는 실패 처리
+   - 외부망 모드(일반)에서는 다른 외부망 제공자로 자동 전환 시도
+
+`.env` 파일 또는 실행 시 `--mode` 인자를 통해 네트워크 모드를 설정할 수 있습니다.
 
 ## 테스트
 
@@ -111,24 +144,29 @@ cd tests
 
 ```
 ape-core/
-├── main.py           # 메인 진입점
-├── run.py            # 서버 실행 스크립트
-├── src/              # 소스 코드
-│   ├── core/         # 핵심 모듈
-│   │   ├── config.py       # 설정 관리
-│   │   ├── llm_service.py  # LLM 서비스 
-│   │   └── router.py       # API 라우터
-│   └── agents/       # 에이전트 모듈
-│       ├── agent_manager.py  # 에이전트 관리
-│       └── rag_agent.py      # RAG 에이전트
-├── config/           # 설정 파일
-│   └── settings.json # 시스템 설정
-├── data/             # 데이터 파일
-│   ├── docs/         # 문서 파일
-│   └── chroma_db/    # 벡터 DB 저장소
-└── tests/            # 테스트 코드
-    ├── test_suite.py   # 통합 테스트
-    └── test_config.json # 테스트 설정
+├── main.py              # 메인 진입점
+├── run.py               # 서버 실행 스크립트
+├── run_ape.sh           # 실행 쉘 스크립트
+├── src/                 # 소스 코드
+│   ├── core/            # 핵심 모듈
+│   │   ├── config.py           # 설정 관리
+│   │   ├── llm_service.py      # LLM 서비스 
+│   │   ├── network_manager.py  # 네트워크 관리
+│   │   └── router.py           # API 라우터
+│   └── agents/          # 에이전트 모듈
+│       ├── agent_manager.py    # 에이전트 관리
+│       └── rag_agent.py        # RAG 에이전트
+├── config/              # 설정 파일
+│   ├── settings.json           # 시스템 설정
+│   ├── models_internal.py      # 내부망 모델 설정
+│   ├── models_external.py      # 외부망 모델 설정
+│   └── network_config.py       # 네트워크 설정
+├── data/                # 데이터 파일
+│   ├── docs/                   # 문서 파일
+│   └── chroma_db/              # 벡터 DB 저장소
+└── tests/               # 테스트 코드
+    ├── test_suite.py           # 통합 테스트
+    └── test_config.json        # 테스트 설정
 ```
 
 ## 개발 가이드
